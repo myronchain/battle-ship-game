@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Battleship!</title>
+  <link rel="stylesheet" type="text/css" href="../css/style.css">
+  <script src="../js/web3.min.js"></script>
+  <script src="../js/abi-decoder.js"></script>
+  <script src="../js/jquery-3.2.1.slim.min.js"></script>
+  <script src="../js/sha256.js"></script>
+  <script src="../js/bootstrap4.0.0.min.js"></script>
+  <link href="../css/bootstrap@5.0.0-beta1.min.css" rel="stylesheet" crossorigin="anonymous">
+  <script src="../js/bootstrap.bundle.min.js"></script>
+  <script src="../js/ethereumjs-tx-1.3.3.min.js"></script>
+  <!--  <script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js@1.3.5/dist/web3.min.js"></script>-->
+  <script src="../js/constants.js"></script>
+</head>
+<body>
+<div id="title-container">
+  <div id="sub-title-container">
+    <h1 id="title">区块链战艇游戏</h1>
+    <h2 id="subtitle"></h2>
+  </div>
+  <div id="game-controller">
+    <h3 class="player-title">玩家 1: </h3>
+    <select id="player1-account" class="account"></select>
+    <p>账户余额: <span id="player1-account-balance"></span></p>
+    <h3 class="player-title">玩家 2:</h3>
+    <select id="player2-account" class="account"></select>
+    <p>账户余额: <span id="player2-account-balance"></span></p>
+    <label for="bet">赌注Eth:</label>
+    <input id="bet" type="text"/>
+    <h5 id="message"></h5>
+    <button id="start-stop">开始游戏</button><dl></dl>
+  </div>
+</div>
+<div id="game-container">
+  <div id="player1" class="player-container">
+    <h3 class="title">Player 1: </h3>
+    <h4 class="address"></h4>
+    <span class="their-board-label">opponent board</span>
+    <table class="their-board"></table>
+    <span class="my-board-label">my board</span>
+    <table class="my-board"></table>
+    <div class="controller"></div>
+  </div>
+  <div id="player2" class="player-container">
+    <h3 class="title">Player 2: </h3>
+    <h4 class="address"></h4>
+    <span class="their-board-label">opponent board</span>
+    <table class="their-board"></table>
+    <span class="my-board-label">my board</span>
+    <table class="my-board"></table>
+    <div class="controller"></div>
+  </div>
+</div>
+<!-- Button trigger modal -->
+<button id="launchModal" type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#myModal" hidden="hidden">
+</button>
+<!-- Scrollable modal -->
+<!-- Modal -->
+<div class="modal fade" id="myModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+     aria-labelledby="staticBackdropLabel" aria-hidden="false">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="staticBackdropLabel">游戏规则</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        该页面分为两部分，下面部分表示当前玩家的棋盘信息，开始的时候，该玩家随机选择两个格子，用于放置两个战舰；
+        上面部分显示对方玩家的棋盘信息，除了对方玩家的战舰位置。
+        开始的时候，上面部分的棋盘是空的。
+        游戏开始之后，两个玩家轮流猜测对方的战舰的位置，每一次只能猜一个方格。
+        如果对方的战舰不在所猜测的方格中，那么就会在对应位置显示一个水花的图像；
+        反之，则出现一团火的图像。
+        因为双方看不到对方的棋盘，因此，每一次都需要对方玩家回复“所猜测的方格是否有战舰”（我们可以采用密码学的技术检测出对方是否撒谎）。
+        当某一个玩家率先猜中了对方两个战舰的位置，该玩家就赢了，并可以收取自己和对方的赌注。
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div>
+  <span id="game-rule">
+    游戏规则：该页面分为两部分，下面部分表示当前玩家的棋盘信息，开始的时候，该玩家随机选择两个格子，用于放置两个战舰；
+    上面部分显示对方玩家的棋盘信息，除了对方玩家的战舰位置。
+    开始的时候，上面部分的棋盘是空的。
+    游戏开始之后，两个玩家轮流猜测对方的战舰的位置，每一次只能猜一个方格。
+    如果对方的战舰不在所猜测的方格中，那么就会在对应位置显示一个水花的图像；
+    反之，则出现一团火的图像。
+    因为双方看不到对方的棋盘，因此，每一次都需要对方玩家回复“所猜测的方格是否有战舰”（我们可以采用密码学的技术检测出对方是否撒谎）。
+    当某一个玩家率先猜中了对方两个战舰的位置，该玩家就赢了，并可以收取自己和对方的赌注。
+  </span>
+</div>
+<script src="../js/utils.js"></script>
+<script src="../js/BattleshipPlayer.js"></script>
+<script src="../js/ui.js"></script>
+<script src="../js/battleship-game.js"></script>
+<script>
+  const launchModal = document.getElementById('launchModal');
+  launchModal.click();
+  const myModalEl = document.getElementById('myModal');
+  myModalEl.addEventListener('hidden.bs.modal', async function (event) {
+    console.log("event:" + event);
+  })
+</script>
+</body>
+</html>
